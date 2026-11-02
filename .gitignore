@@ -1,0 +1,28 @@
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfplan
+.terraform.lock.hcl
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+dist/
+agent/evaluation/eval_results.json
+
+# Secrets
+.env
+*.pem
+*.key
+
+# IDE
+.idea/
+.vscode/
+.DS_Store
+
+# Local build tracker (never commit)
+TODO.md
