@@ -9,7 +9,7 @@ terraform {
   }
 
   backend "s3" {
-    bucket         = "northpay-tfstate-dev"
+    bucket         = "northpay-tfstate-595981720885"
     key            = "cloudops-agent/dev/terraform.tfstate"
     region         = "us-east-1"
     encrypt        = true
