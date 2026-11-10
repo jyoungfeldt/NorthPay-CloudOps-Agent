@@ -80,7 +80,7 @@ resource "aws_sfn_state_machine" "approval" {
             proposed_fix  = { "S.$" = "$.proposed_fix" }
             status        = { S = "PENDING_APPROVAL" }
             timestamp     = { "S.$" = "$$.Execution.StartTime" }
-            ttl           = { "N.$" = "States.Format('{}', States.MathAdd(States.StringToJson($$.Execution.StartTime), 7776000))" }
+            ttl           = { "S.$" = "$$.Execution.StartTime" }
           }
         }
         Next = "SendApprovalRequest"
@@ -89,13 +89,11 @@ resource "aws_sfn_state_machine" "approval" {
       SendApprovalRequest = {
         Type     = "Task"
         Resource = "arn:aws:states:::sns:publish.waitForTaskToken"
-        HeartbeatSeconds = 86400  # 24h timeout
+        HeartbeatSeconds = 86400
         Parameters = {
-          TopicArn = aws_sns_topic.approvals.arn
-          Message = {
-            "Input.$" = "States.Format('NorthPay CloudOps Agent requires approval\\n\\nFinding: {}\\n\\nProposed fix: {}\\n\\nApprove: {}\\nReject: {}', $.finding.title, $.proposed_fix, States.Format('https://REPLACE_WITH_API_URL/approve?token={}', $$.Task.Token), States.Format('https://REPLACE_WITH_API_URL/reject?token={}', $$.Task.Token))"
-          }
-          Subject = "CloudOps Agent — Approval Required"
+          TopicArn    = aws_sns_topic.approvals.arn
+          "Message.$" = "States.Format('NorthPay CloudOps Agent requires approval. Finding: {}. Proposed fix: {}. Task token: {}', $.finding.title, $.proposed_fix, $$.Task.Token)"
+          Subject     = "CloudOps Agent Approval Required"
         }
         ResultPath = "$.approval"
         Catch = [{

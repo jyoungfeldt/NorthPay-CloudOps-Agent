@@ -1,5 +1,7 @@
 resource "aws_bedrock_guardrail" "cloudops" {
-  name                      = "northpay-cloudops-${var.environment}"
+  name        = "northpay-cloudops-${var.environment}"
+  description = "NorthPay CloudOps Agent — content policy for cloud operations scope"
+
   blocked_input_messaging   = "I can only help with NorthPay AWS cloud operations questions."
   blocked_outputs_messaging = "This response was blocked by the NorthPay content policy."
 
@@ -8,22 +10,18 @@ resource "aws_bedrock_guardrail" "cloudops" {
     topics_config {
       name       = "off-topic"
       definition = "Any topic not related to AWS cloud operations, security, cost management, or NorthPay's infrastructure."
-      examples   = [
-        "Tell me a joke",
-        "Write me a poem",
-        "What is the capital of France",
-        "Help me write an email"
-      ]
-      type = "DENY"
+      examples   = []
+      type       = "DENY"
     }
     topics_config {
       name       = "non-northpay-accounts"
       definition = "Questions about AWS accounts, resources, or infrastructure not belonging to NorthPay."
+      examples   = []
       type       = "DENY"
     }
   }
 
-  # PII filter: don't return PII in responses
+  # PII filter: anonymize or block PII in responses
   sensitive_information_policy_config {
     pii_entities_config {
       type   = "EMAIL"
@@ -55,7 +53,7 @@ resource "aws_bedrock_guardrail" "cloudops" {
   }
 }
 
-resource "aws_bedrock_guardrail_version" "cloudops" {
-  guardrail_arn = aws_bedrock_guardrail.cloudops.guardrail_arn
-  description   = "Initial version"
-}
+# Note: aws_bedrock_guardrail_version removed — the provider version shipped
+# with this project has a bug returning unknown values for guardrail fields
+# after apply. The DRAFT version is sufficient for development; add versioning
+# back once the provider is updated.
